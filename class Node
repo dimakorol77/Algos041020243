@@ -1,0 +1,168 @@
+// Класс для представления узла дерева
+class Node {
+    int value;
+    Node left, right;
+
+    public Node(int item) {
+        value = item;
+        left = right = null;
+    }
+}
+
+// Класс для представления бинарного дерева поиска
+public class BinaryTree {
+    // Корень дерева
+    Node root;
+
+    public BinaryTree() {
+        root = null;
+    }
+
+    /**
+     * Вставка нового значения в дерево.
+     *
+     * @param value Значение для вставки.
+     */
+    public void insert(int value) {
+        root = insertRec(root, value);
+    }
+
+    // Рекурсивный метод для вставки нового значения
+    private Node insertRec(Node root, int value) {
+        // Если дерево пусто, возвращаем новый узел
+        if (root == null) {
+            root = new Node(value);
+            return root;
+        }
+
+        // Иначе рекурсивно спускаемся по дереву
+        if (value < root.value)
+            root.left = insertRec(root.left, value);
+        else if (value > root.value)
+            root.right = insertRec(root.right, value);
+        // Если значение уже существует, ничего не делаем
+        return root;
+    }
+
+    /**
+     * Поиск узла с заданным значением.
+     *
+     * @param value Значение для поиска.
+     * @return Узел с заданным значением или null, если не найден.
+     */
+    public Node find(int value) {
+        return findRec(root, value);
+    }
+
+    // Рекурсивный метод для поиска
+    private Node findRec(Node root, int value) {
+        // Базовый случай: корень пуст или значение найдено
+        if (root == null || root.value == value)
+            return root;
+
+        // Значение меньше корня, ищем в левом поддереве
+        if (value < root.value)
+            return findRec(root.left, value);
+
+        // Иначе ищем в правом поддереве
+        return findRec(root.right, value);
+    }
+
+    /**
+     * Удаление узла с заданным значением.
+     *
+     * @param value Значение для удаления.
+     */
+    public void delete(int value) {
+        root = deleteRec(root, value);
+    }
+
+    // Рекурсивный метод для удаления узла
+    private Node deleteRec(Node root, int value) {
+        // Базовый случай
+        if (root == null)
+            return root;
+
+        // Если значение меньше корня, ищем в левом поддереве
+        if (value < root.value)
+            root.left = deleteRec(root.left, value);
+        // Если значение больше корня, ищем в правом поддереве
+        else if (value > root.value)
+            root.right = deleteRec(root.right, value);
+        // Если значение совпадает с корнем, удаляем этот узел
+        else {
+            // Узел с только одним дочерним узлом или без
+            if (root.left == null)
+                return root.right;
+            else if (root.right == null)
+                return root.left;
+
+            // Узел с двумя дочерними узлами:
+            // Получаем наименьшее значение из правого поддерева
+            root.value = minValue(root.right);
+
+            // Удаляем этот наименьший узел
+            root.right = deleteRec(root.right, root.value);
+        }
+
+        return root;
+    }
+
+    // Метод для нахождения минимального значения в дереве
+    private int minValue(Node root) {
+        int minv = root.value;
+        while (root.left != null) {
+            minv = root.left.value;
+            root = root.left;
+        }
+        return minv;
+    }
+
+    /**
+     * Вывод дерева (in-order обход).
+     *
+     * @param node Узел для начала обхода.
+     */
+    public void printInOrder(Node node) {
+        if (node != null) {
+            printInOrder(node.left);
+            System.out.print(node.value + " ");
+            printInOrder(node.right);
+        }
+    }
+
+    // Дополнительный метод для удобства вывода
+    public void printTree() {
+        printInOrder(root);
+        System.out.println();
+    }
+
+    // Метод main для демонстрации работы дерева
+    public static void main(String[] args) {
+        BinaryTree tree = new BinaryTree();
+
+        /* Вставка узлов в дерево */
+        tree.insert(13);
+        tree.insert(5);
+        tree.insert(15);
+        tree.insert(6);
+        tree.insert(3);
+
+        System.out.println("In-order обход дерева:");
+        tree.printTree(); // Ожидаемый вывод: 3 5 6 13 15
+
+        /* Поиск */
+        int searchValue = 6;
+        Node foundNode = tree.find(searchValue);
+        if (foundNode != null)
+            System.out.println("Узел с значением " + searchValue + " найден.");
+        else
+            System.out.println("Узел с значением " + searchValue + " не найден.");
+
+        /* Удаление */
+        int deleteValue = 5;
+        tree.delete(deleteValue);
+        System.out.println("Дерево после удаления " + deleteValue + ":");
+        tree.printTree(); // Ожидаемый вывод: 3 6 13 15
+    }
+}
